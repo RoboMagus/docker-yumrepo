@@ -108,6 +108,77 @@ Base path where the repository will be created inside the container. Use the `-e
 ###### REPO_DEPTH
 Number of levels that will have the repository to create. For example, use `-e REPO_DEPTH=2` if your repository have two levels depth (<relversion>/<architecture>).
 
+##### HTTPS support
+
+###### REPO_PROTO
+If set to `https` the repository will be exposed over HTTPS rather than the default HTTP.
+
+###### REPO_CERT
+Path to SSL certificate file.
+
+###### REPO_KEY
+Path to SSL key file.
+
+###### Example 
+Fragment of `docker-compose.yml`:
+
+```yaml
+services:
+  yumrepo:
+    image: intraway/yum-repo
+    hostname: yumrepo
+    container_name: yumrepo
+    ports:
+      - 443
+    volumes:
+      - ./extras/dummyrepo:/var/repo:rw
+      - /etc/localtime:/etc/localtime
+      - ./certs:/certs
+    environment:
+      - REPO_PORT=443
+      - REPO_PROTO=https
+      - REPO_CERT=/certs/repo.crt
+      - REPO_KEY=/certs/repo.key
+      - REPO_PATH=/var/repo
+      - REPO_DEPTH=2
+      
+  ...
+```
+
+#### GPG Repository Signing
+Use with care: automatically signs repository without requiring the repository updater to provide a GPG passphrase.
+
+As a first step, the GPG secret key must be exported to a file which must then be mounted as volume `/var/repo.key` - ie. `gpg --export-secret-keys repo-key-name > repo.key`.
+
+###### REPO\_GPG\_KEY_NAME
+Name of GPG key (`repo-key-name` in above example).
+
+###### REPO\_GPG\_PASSPHRASE
+Passphrase for GPG key.
+
+Rather than hard-coding this in `docker-compose.yml`, consider providing from the host environment or using an environment file.
+
+###### Example
+Fragment of `docker-compose.yml`:
+
+```yaml
+services:
+  yumrepo:
+    image: intraway/yum-repo
+    hostname: yumrepo
+    container_name: yumrepo
+    ports:
+      - 443
+    volumes:
+      - ./extras/dummyrepo:/var/repo:rw
+      - ./repo.key:/var/repo.key:ro
+      - /etc/localtime:/etc/localtime
+    environment:
+      - REPO_GPG_KEY_NAME=Repo Signing Key
+      - REPO_GPG_PASSPHRASE      
+  ...
+```
+
 ---
 
 ### To-Do
