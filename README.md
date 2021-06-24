@@ -176,6 +176,8 @@ services:
     environment:
       - REPO_GPG_KEY_NAME=Repo Signing Key
       - REPO_GPG_PASSPHRASE      
+      - REPO_PATH=/var/repo
+      - REPO_DEPTH=2
   ...
 ```
 
