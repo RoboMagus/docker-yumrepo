@@ -15,7 +15,7 @@ function printRepoConf(){
     echo -e "\n\ncat << EOF > /etc/yum.repos.d/container.repo\n\
 [container]\n\
 name=Container Repo\n\
-baseurl=http://${CONTAINER_IP}/\\\$releasever/\\\$basearch/\n\
+baseurl=${REPO_PROTO}://${CONTAINER_IP}/\\\$releasever/\\\$basearch/\n\
 gpgcheck=0\n\
 EOF\n\n\n------------------------------------------------------"
     echo -e "Then run: yum --disablerepo=* --enablerepo=container <action> <package>\n------------------------------------------------------\n"
@@ -27,9 +27,9 @@ function createRepos(){
 }
 
 function serveRepos(){
-    echo -e "> Serving repositories... (on http://0.0.0.0:${REPO_PORT})"
     ssl=""
     [ "${REPO_PROTO}" = "https" ] && ssl=" ssl"
+    echo -e "> Serving repositories... (on ${REPO_PROTO}://0.0.0.0:${REPO_PORT})"
     sed -i "s/listen.*;$/listen ${REPO_PORT}${ssl};/g" /etc/nginx/conf.d/repo.conf
     if [ -n "${REPO_CERT}" ]; then
         sed -i "/listen.*;$/a \ \ \ \ ssl_certificate ${REPO_CERT};" /etc/nginx/conf.d/repo.conf
@@ -37,9 +37,6 @@ function serveRepos(){
     if [ -n "${REPO_KEY}" ]; then
         sed -i "/listen.*;$/a \ \ \ \ ssl_certificate_key ${REPO_KEY};" /etc/nginx/conf.d/repo.conf
     fi
-    echo "<repo.conf>"
-    cat /etc/nginx/conf.d/repo.conf
-    echo "</repo.conf>"
 
     exec nginx &
 }
