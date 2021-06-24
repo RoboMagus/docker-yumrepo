@@ -28,7 +28,19 @@ function createRepos(){
 
 function serveRepos(){
     echo -e "> Serving repositories... (on http://0.0.0.0:${REPO_PORT})"
-    sed -i "s/listen.*;$/listen ${REPO_PORT};/g" /etc/nginx/conf.d/repo.conf
+    ssl=""
+    [ "${REPO_PROTO}" = "https" ] && ssl=" ssl"
+    sed -i "s/listen.*;$/listen ${REPO_PORT}${ssl};/g" /etc/nginx/conf.d/repo.conf
+    if [ -n "${REPO_CERT}" ]; then
+        sed -i "/listen.*;$/a \ \ \ \ ssl_certificate ${REPO_CERT};" /etc/nginx/conf.d/repo.conf
+    fi
+    if [ -n "${REPO_KEY}" ]; then
+        sed -i "/listen.*;$/a \ \ \ \ ssl_certificate_key ${REPO_KEY};" /etc/nginx/conf.d/repo.conf
+    fi
+    echo "<repo.conf>"
+    cat /etc/nginx/conf.d/repo.conf
+    echo "</repo.conf>"
+
     exec nginx &
 }
 
