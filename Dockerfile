@@ -1,4 +1,4 @@
-FROM nginx:1.12-alpine
+FROM nginx:1.21.0-alpine
 MAINTAINER Manuel Andres Garcia Vazquez "<manuel.vazquez@intraway.com>"
 
 ARG BUILD_DATE
@@ -12,8 +12,8 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$BUILD_VERSION \
       com.microscaling.license=GPL-3.0
 
-ENV CREATEREPO_C_VERSION=${CREATEREPO_C_VERSION:-0.10.0.48-r0}
-ENV INOTIFY_TOOLS_VERSION=${INOTIFY_TOOLS_VERSION:-3.14-r2}
+ENV CREATEREPO_C_VERSION=${CREATEREPO_C_VERSION:-0.17.1-r0}
+ENV INOTIFY_TOOLS_VERSION=${INOTIFY_TOOLS_VERSION:-3.20.11.0-r0}
 
 ENV REPO_PORT=${REPO_PORT:-80}
 ENV REPO_PATH=${REPO_PATH:-/var/repo}
