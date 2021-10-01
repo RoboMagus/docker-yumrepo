@@ -4,9 +4,6 @@
 : ${REPO_PROTO:=http}
 : ${REPO_PORT:=80}
 
-CONTAINER_IP=$(ip addr show eth0 | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
-NGINX_PID=undef
-
 trap '_exit' SIGINT SIGTERM EXIT
 
 function _exit(){
@@ -21,18 +18,6 @@ function importGpgKey(){
     fi
 }
 
-function printRepoConf(){
-    echo -e "------------------------------------------------------\nAdd this config to '/etc/yum.repos.d/container.repo' on the Client:\n------------------------------------------------------"
-    gpgcheck=0
-    [ -n "${REPO_GPG_KEY_NAME}" ] && gpgcheck=1
-    echo -e "\n\ncat << EOF > /etc/yum.repos.d/container.repo\n\
-[container]\n\
-name=Container Repo\n\
-baseurl=${REPO_PROTO}://${CONTAINER_IP}/\\\$releasever/\\\$basearch/\n\
-gpgcheck=${gpgcheck}\n\
-EOF\n\n\n------------------------------------------------------"
-    echo -e "Then run: yum --disablerepo=* --enablerepo=container <action> <package>\n------------------------------------------------------\n"
-}
 
 function createRepos(){
     echo -e "> Creating repository indexes... (repo maxdepth ${REPO_DEPTH})"
@@ -68,7 +53,6 @@ function serveRepos(){
 }
 
 importGpgKey
-printRepoConf
 serveRepos
 createRepos
 
