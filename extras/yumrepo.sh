@@ -56,11 +56,19 @@ importGpgKey
 serveRepos
 createRepos
 
+LOCKFILE_DIR=/tmp/inotify
+LOCKFILE=$LOCKFILE_DIR/.inotify.lock
+mkdir -p $LOCKFILE_DIR
+rm -rf $LOCKFILE
+
 inotifywait -m -r -e create -e delete -e delete_self --excludei '(repodata|.*xml)' ${REPO_PATH}/ |
 while read path action file; do
-    echo -e "> Repository content was changed..."
-    echo "path: $path"
-    echo "action: $action"
-    echo "file: $file"
-    createRepos
+    echo -e "> Repository content was changed:   path: $path, action: $action, file: $file"
+    
+    if [ -e "$lockfile" ]
+    then
+        continue
+    else
+        sleep 1 && rm -rf $LOCKFILE && inotifywait -t 4 $LOCKFILE_DIR || createRepos &
+    fi
 done
