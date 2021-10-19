@@ -24,7 +24,7 @@ This is a tiny container based on [Alpine distro](https://alpinelinux.org/) that
 ---
 
 ### Limitations
-* None
+* Does not (yet) work with repositories containing `comps.xml`
 
 ---
 
@@ -35,7 +35,7 @@ This is a tiny container based on [Alpine distro](https://alpinelinux.org/) that
 You can manually run these commands:
 
 ```bash
-docker run -d -v <path_to_rpms>:/var/repo:rw intraway/yum-repo
+docker run -d -v <path_to_rpms>:/var/repo:rw robomagus/yum-repo
 ```
 
 You must mount a directory inside of the container the contains all RPM's that you want serve.
@@ -59,7 +59,7 @@ version: '2'
 
 services:
   yumrepo:
-    image: intraway/yum-repo
+    image: robomagus/yum-repo
     hostname: yumrepo
     container_name: yumrepo
     ports:
@@ -71,6 +71,8 @@ services:
       - REPO_PORT=80
       - REPO_PATH=/var/repo
       - REPO_DEPTH=2
+      - USE_UPDATE=1
+      - FIND_SYMLINKS=0
 
   centos6:
     image: centos:6
@@ -119,13 +121,21 @@ Path to SSL certificate file.
 ###### REPO_KEY
 Path to SSL key file.
 
+
+###### USE_UPDATE
+If set to 1, the createrepo command is run with the `--update` argument to speed-up the process for larger repositories.
+
+###### FIND_SYMLINKS
+If set to 1, the find command used to determine where repodata should be created will follow symlinks (Disabled by default)
+Note that this does not listen for changes behind the symlink!!
+
 ###### Example 
 Fragment of `docker-compose.yml`:
 
 ```yaml
 services:
   yumrepo:
-    image: intraway/yum-repo
+    image: robomagus/yum-repo
     hostname: yumrepo
     container_name: yumrepo
     ports:
@@ -141,6 +151,8 @@ services:
       - REPO_KEY=/certs/repo.key
       - REPO_PATH=/var/repo
       - REPO_DEPTH=2
+      - USE_UPDATE=1
+      - FIND_SYMLINKS=0
       
   ...
 ```
@@ -178,6 +190,8 @@ services:
       - REPO_GPG_PASSPHRASE      
       - REPO_PATH=/var/repo
       - REPO_DEPTH=2
+      - USE_UPDATE=1
+      - FIND_SYMLINKS=0
   ...
 ```
 
