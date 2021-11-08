@@ -12,9 +12,11 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$BUILD_VERSION \
       com.microscaling.license=GPL-3.0
 
-ENV CREATEREPO_C_VERSION=${CREATEREPO_C_VERSION:-0.17.1-r0}
-ENV INOTIFY_TOOLS_VERSION=${INOTIFY_TOOLS_VERSION:-3.20.11.0-r0}
-ENV GNUPG_VERSION=${GNUPG_VERSION:-2.2.31-r0}
+# NOTE: arguments include operator ('=' / '>' / '<' / '=~' ...)
+# Default to empty to always pick latest available...
+# ENV CREATEREPO_C_VERSION=${CREATEREPO_C_VERSION:->0.17.1-r0}
+# ENV INOTIFY_TOOLS_VERSION=${INOTIFY_TOOLS_VERSION:->3.20.11.0-r0}
+# ENV GNUPG_VERSION=${GNUPG_VERSION:->2.2.31-r0}
 
 ENV REPO_PORT=${REPO_PORT:-80}
 ENV REPO_PROTO=${REPO_PROTO:-http}
@@ -30,9 +32,9 @@ RUN echo -e "http://dl-cdn.alpinelinux.org/alpine/edge/main\n\
 http://dl-cdn.alpinelinux.org/alpine/edge/community\n\
 http://dl-cdn.alpinelinux.org/alpine/edge/testing" > /etc/apk/repositories &&\
     apk add --no-cache \
-        createrepo_c=${CREATEREPO_C_VERSION} \
-        inotify-tools=${INOTIFY_TOOLS_VERSION} \
-        gnupg=${GNUPG_VERSION}
+        createrepo_c${CREATEREPO_C_VERSION} \
+        inotify-tools${INOTIFY_TOOLS_VERSION} \
+        gnupg${GNUPG_VERSION}
 ########################################
 
 ############# Config NginX #############
